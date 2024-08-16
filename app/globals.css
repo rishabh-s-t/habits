@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gradient-text: -webkit-linear-gradient(#8ec5fc, #e0c3fc);
+  --gradient-background: -webkit-linear-gradient(#8ec5fc, #e0c3fc);
+}
+
+.textGradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.buttonGradient {
+  background: linear-gradient(to right, #8ec5fc, #e0c3fc);
+  color: white;
+}
+
+.borderGradient {
+  border-image: linear-gradient(to right, #8ec5fc, #e0c3fc) 1;
+  border-radius: 999999px;
+}
