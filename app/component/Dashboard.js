@@ -3,6 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Main from './Main';
 import { Pacifico } from 'next/font/google';
 import Button from './Button';
+import Activity from './Activity';
+import Glass from './icons/Glass';
+import Running from './icons/Running';
+import Study from './icons/Study';
+import Weight from './icons/Weight';
+import Protein from './icons/Protein';
+import Carbs from './icons/Carbs';
+import Fats from './icons/Fats';
 
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });
 
@@ -48,7 +56,7 @@ export default function Dashboard() {
 
   return (
     <div className='flex flex-col p-2'>
-      <div className='flex w-full h-full items-center justify-center'>
+      <div className='flex w-full h-full items-center justify-center border-b-2 border-indigo-100'>
         <div className=' grid h-full w-full grid-cols-12 grid-rows-6 gap-4'>
           <div className='col-span-12 row-span-1  rounded-3xl flex justify-center items-center'>
             <div className='flex flex-row w-full h-full items-center justify-center p-2 sm:p-4'>
@@ -64,7 +72,7 @@ export default function Dashboard() {
                       </p>
                       <p
                         className={
-                          'text-xl sm:text-2xl truncate pb-1 ' +
+                          'text-xl sm:text-2xl truncate pb-2 ' +
                           pacifico.className
                         }
                       >
@@ -133,25 +141,47 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className='col-span-3 row-span-1 bg-orange-300 rounded-3xl flex justify-center items-center'>
-            Water
+          <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center mx-1 my-1'>
+            <Activity
+              name='Water intake'
+              placeholder='enter glasses'
+              icon={Glass}
+            />
           </div>
-          <div className='col-span-3 row-span-1 bg-orange-300 rounded-3xl flex justify-center items-center'>
-            Running
+          <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
+            <Activity
+              name='Miles ran?'
+              placeholder='enter miles'
+              icon={Running}
+            />
           </div>
-          <div className='col-span-3 row-span-1 bg-orange-300 rounded-3xl flex justify-center items-center'>
-            Study
+          <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
+            <Activity
+              name='Study (upskill)'
+              placeholder='enter hours'
+              icon={Study}
+            />
           </div>
-          <div className='col-span-3 row-span-1 bg-orange-300 rounded-3xl flex justify-center items-center'>
-            Weight
+          <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
+            <Activity name='Weight in kgs' placeholder='in kgs' icon={Weight} />
           </div>
-          <div className='col-span-6 row-span-2 bg-orange-300 rounded-3xl flex justify-center items-center'>
-            Calories
+          <div className='col-span-6 row-span-2  rounded-3xl flex justify-center items-center'>
+            <div className='grid grid-cols-3 grid-rows-1'>
+              <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
+                <Activity name='Protein' placeholder='in gms' icon={Protein} />
+              </div>
+              <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
+                <Activity name='Carbs' placeholder='in gms' icon={Carbs} />
+              </div>
+              <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
+                <Activity name='Fats' placeholder='in gms' icon={Fats} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className='w-full items center justify-center my-4 p-2 sm:p-3 bg-yellow-100'>
+      <div className='w-full items center justify-center my-4 p-2 sm:p-3'>
         <div className='max-w-[400px] w-full mx-auto align-bottom'>
           <Button text='track' dark full />
         </div>
