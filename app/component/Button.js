@@ -4,9 +4,10 @@ import React from 'react';
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });
 
 export default function Button(props) {
-  const { text, dark, full } = props;
+  const { text, dark, full, onPress } = props;
   return (
     <button
+      onClick={onPress}
       className={
         ' overflow-hidden duration-200 hover:opacity-60 rounded-full ' +
         (dark

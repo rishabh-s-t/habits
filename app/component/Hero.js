@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import Button from './Button';
 import Calendar from './Calendar';
+import CallToAction from './CallToAction';
 
 const open = Open_Sans({ subsets: ['latin'], weight: ['400'] });
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });
@@ -36,12 +37,9 @@ export default function Hero() {
         everyday.
       </p>
 
-      <div className={'grid grid-cols-2 gap-4 w-fit mx-auto '}>
-        <Button text='Sign Up' />
-        <Button text='Login' dark />
-      </div>
+      <CallToAction />
 
-      <Calendar />
+      <Calendar demo />
     </div>
   );
 }

@@ -6,6 +6,10 @@ import {
   Open_Sans,
 } from 'next/font/google';
 import './globals.css';
+import Link from 'next/link';
+import { AuthProvider } from './context/AuthContext';
+import Head from './Head';
+import Logout from './component/Logout';
 
 const open = Open_Sans({ subsets: ['latin'] });
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });
@@ -18,14 +22,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   const header = (
     <header className='p-2 sm:p-4 flex items-center justify-between gap-4'>
-      <h1
-        className={
-          'text-xl sm:text-2xl textGradient font-bold ' + pacifico.className
-        }
-      >
-        habits
-      </h1>
-      <div className='flex items-center justify-between'>PLACEHOLDER</div>
+      <Link href={'/'}>
+        <h1
+          className={
+            'text-xl sm:text-2xl textGradient font-bold ' + pacifico.className
+          }
+        >
+          habits
+        </h1>
+      </Link>
+      <Logout />
     </header>
   );
   const footer = (
@@ -37,16 +43,19 @@ export default function RootLayout({ children }) {
   );
   return (
     <html lang='en'>
-      <body
-        className={
-          'w-full max-w-[1000px] mx-auto text-sm sm:text-base min-h-screen flex flex-col ' +
-          open.className
-        }
-      >
-        {header}
-        {children}
-        {footer}
-      </body>
+      <Head />
+      <AuthProvider>
+        <body
+          className={
+            'w-full max-w-[1000px] mx-auto text-sm sm:text-base min-h-screen flex flex-col ' +
+            open.className
+          }
+        >
+          {header}
+          {children}
+          {footer}
+        </body>
+      </AuthProvider>
     </html>
   );
 }

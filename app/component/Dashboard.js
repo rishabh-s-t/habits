@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import Main from './Main';
 import { Pacifico } from 'next/font/google';
 import Button from './Button';
 import Activity from './Activity';
@@ -11,16 +10,35 @@ import Weight from './icons/Weight';
 import Protein from './icons/Protein';
 import Carbs from './icons/Carbs';
 import Fats from './icons/Fats';
+import Calendar from './Calendar';
+import { useAuth } from '../context/AuthContext';
+import Login from './Login';
+import Loading from './Loading';
 
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });
 
 export default function Dashboard() {
-  const [prompt, setPrompt] = useState('');
+  const { currentUser, userDataObj, setUserDataObj, loading } = useAuth();
 
-  const getRandomPrompt = () => {
-    const randomIndex = Math.floor(Math.random() * journalPrompts.length);
-    return journalPrompts[randomIndex];
-  };
+  const [prompt, setPrompt] = useState('');
+  const [journal, setJournal] = useState('');
+  const [water, setWater] = useState(0);
+  const [miles, setMiles] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [kgs, setKgs] = useState(0);
+  const [protein, setProtein] = useState(0);
+  const [carbs, setCarbs] = useState(0);
+  const [fats, setFats] = useState(0);
+  const [selectedMood, setSelectedMood] = useState('');
+
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    if (!currentUser || !userDataObj) {
+      return;
+    }
+    setData(userDataObj);
+  }, [currentUser, userDataObj]);
 
   useEffect(() => {
     const prompt = getRandomPrompt();
@@ -40,6 +58,11 @@ export default function Dashboard() {
     'What is my next step?',
   ];
 
+  const getRandomPrompt = () => {
+    const randomIndex = Math.floor(Math.random() * journalPrompts.length);
+    return journalPrompts[randomIndex];
+  };
+
   const moods = {
     '&*@#$': '😭',
     Sad: '🥲',
@@ -53,6 +76,71 @@ export default function Dashboard() {
     time_remaining: '13:14:26',
     date: new Date().toDateString(),
   };
+
+  const handleTrackButton = () => {
+    console.log('Button pressed');
+    const data = {
+      mood: selectedMood,
+      journalEntry: journal,
+      waterIntake: water,
+      milesRan: miles,
+      studyHours: hours,
+      weightInKgs: kgs,
+      proteinIntake: protein,
+      carbsIntake: carbs,
+      fatsIntake: fats,
+      date: new Date().toISOString(), // For time reference
+    };
+
+    setData(data);
+  };
+
+  function countValues() {}
+
+  async function handleSetMood(mood) {
+    const day = now.getDate();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+
+    try {
+      const newData = { ...userDataObj };
+      if (!newData?.[year]) {
+        newData[year] = {};
+      }
+      if (!newData?.[year]?.[month]) {
+        newData[year][month] = {};
+      }
+
+      newData[year][month][day] = mood;
+      // update the current state
+      setData(newData);
+      // update the global state
+      setUserDataObj(newData);
+      // update firebase
+      const docRef = doc(db, 'users', currentUser.uid);
+      const res = await setDoc(
+        docRef,
+        {
+          [year]: {
+            [month]: {
+              [day]: mood,
+            },
+          },
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.log('Failed to set data: ', err.message);
+    }
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (!currentUser) {
+    return <Login />;
+  }
 
   return (
     <div className='flex flex-col p-2'>
@@ -85,6 +173,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Mood Section */}
           <div className='col-span-12 row-span-2 rounded-3xl flex'>
             <div className='w-full h-full items-center justify-center content-center p-2 sm:p-4 border-y-2 border-indigo-100'>
               <h4
@@ -100,10 +190,14 @@ export default function Dashboard() {
                 {Object.keys(moods).map((mood, moodIndex) => {
                   return (
                     <button
-                      className={
-                        'p-4 px-5 rounded-2xl purpleShadow duration-200 bg-indigo-50 hover:bg-indigo-100 text-center flex flex-col items-center gap-2 flex-1 '
-                      }
                       key={moodIndex}
+                      className={
+                        'p-4 px-5 rounded-2xl purpleShadow duration-200 bg-indigo-50 hover:bg-indigo-100 text-center flex flex-col items-center gap-2 flex-1 ' +
+                        (selectedMood === mood
+                          ? 'ring-4 ring-indigo-400' // Highlight selected mood
+                          : '')
+                      }
+                      onClick={() => setSelectedMood(mood)} // Update selected mood on click
                     >
                       <p className='text-4xl sm:text-5xl md:text-6xl'>
                         {moods[mood]}
@@ -122,6 +216,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Journal Section */}
           <div className='col-span-6 row-span-4 rounded-3xl flex justify-center items-center'>
             <div className='w-full h-full flex flex-col items-center justify-center content-center p-2 sm:p-4'>
               <h4
@@ -134,6 +230,8 @@ export default function Dashboard() {
               </h4>
               <div className='w-full h-full flex'>
                 <textarea
+                  value={journal}
+                  onChange={(e) => setJournal(e.target.value)}
                   placeholder='Journal here...'
                   className='w-full h-full p-3 outline-none border-2 border-indigo-100 rounded-xl resize-none duration-200 hover:border-secondary focus:border-secondary'
                 />
@@ -141,11 +239,14 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Activity Section */}
           <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center mx-1 my-1'>
             <Activity
               name='Water intake'
               placeholder='enter glasses'
               icon={Glass}
+              value={water}
+              onChange={setWater} // Bind to state
             />
           </div>
           <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
@@ -153,6 +254,8 @@ export default function Dashboard() {
               name='Miles ran?'
               placeholder='enter miles'
               icon={Running}
+              value={miles}
+              onChange={setMiles} // Bind to state
             />
           </div>
           <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
@@ -160,21 +263,47 @@ export default function Dashboard() {
               name='Study (upskill)'
               placeholder='enter hours'
               icon={Study}
+              value={hours}
+              onChange={setHours} // Bind to state
             />
           </div>
           <div className='col-span-3 row-span-1 rounded-3xl flex justify-center items-center'>
-            <Activity name='Weight in kgs' placeholder='in kgs' icon={Weight} />
+            <Activity
+              name='Weight in kgs'
+              placeholder='in kgs'
+              icon={Weight}
+              value={kgs}
+              onChange={setKgs} // Bind to state
+            />
           </div>
           <div className='col-span-6 row-span-2  rounded-3xl flex justify-center items-center'>
             <div className='grid grid-cols-3 grid-rows-1'>
               <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
-                <Activity name='Protein' placeholder='in gms' icon={Protein} />
+                <Activity
+                  name='Protein'
+                  placeholder='in gms'
+                  icon={Protein}
+                  value={protein}
+                  onChange={setProtein} // Bind to state
+                />
               </div>
               <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
-                <Activity name='Carbs' placeholder='in gms' icon={Carbs} />
+                <Activity
+                  name='Carbs'
+                  placeholder='in gms'
+                  icon={Carbs}
+                  value={carbs}
+                  onChange={setCarbs} // Bind to state
+                />
               </div>
               <div className='mx-2 col-span-1 row-span-1 rounded-3xl justify-center items-center'>
-                <Activity name='Fats' placeholder='in gms' icon={Fats} />
+                <Activity
+                  name='Fats'
+                  placeholder='in gms'
+                  icon={Fats}
+                  value={fats}
+                  onChange={setFats} // Bind to state
+                />
               </div>
             </div>
           </div>
@@ -183,9 +312,11 @@ export default function Dashboard() {
 
       <div className='w-full items center justify-center my-4 p-2 sm:p-3'>
         <div className='max-w-[400px] w-full mx-auto align-bottom'>
-          <Button text='track' dark full />
+          <Button text='track' dark full onPress={handleTrackButton} />
         </div>
       </div>
+
+      <Calendar completeData={data} handleSetMood={handleSetMood} />
     </div>
   );
 }
