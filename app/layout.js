@@ -8,8 +8,8 @@ import {
 import './globals.css';
 import Link from 'next/link';
 import { AuthProvider } from './context/AuthContext';
-import Head from './Head';
 import Logout from './component/Logout';
+import Head from './Head';
 
 const open = Open_Sans({ subsets: ['latin'] });
 const pacifico = Pacifico({ subsets: ['latin'], weight: ['400'] });

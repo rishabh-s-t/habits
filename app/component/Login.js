@@ -41,7 +41,7 @@ export default function Login() {
       >
         {isRegistered ? 'Register' : 'Login'}
       </h3>
-      <p>You're one step away!</p>
+      <p>{"You're one step away!"}</p>
       <input
         value={email}
         onChange={(e) => {
